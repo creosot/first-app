@@ -1,16 +1,29 @@
 {
-  "name": "application-name",
+  "name": "first-app",
   "version": "0.0.1",
   "private": true,
   "scripts": {
     "start": "node app"
   },
   "dependencies": {
-    "express": "3.0.3",
-    "jade": "*"
+    "express": "^4.8.2",
+    "jade": "*",
+    "logfmt": "^1.1.2"
   },
   "engines": {
-    "node": "0.8.x",
-    "npm": "1.1.x"
-  }
+    "node": "0.10.x",
+    "npm": "1.4.x"
+  },
+  "description": "first-app",
+  "main": "app.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/creosot/first-app.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/creosot/first-app/issues"
+  },
+  "homepage": "https://github.com/creosot/first-app"
 }
