@@ -26,8 +26,8 @@ net.createServer(function(socket){
         socket.write(data);
     });
 
-    socket.on("messages", function(messages){
-        console.log(messages);
+    socket.on("messages", function(message){
+        console.log(message);
         //socket.write(data);
     });
 
