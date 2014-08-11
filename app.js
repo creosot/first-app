@@ -26,6 +26,11 @@ net.createServer(function(socket){
         socket.write(data);
     });
 
+    socket.on("messages", function(messages){
+        console.log(messages);
+        //socket.write(data);
+    });
+
     socket.on("error", function(ex){
         console.log(ex);
     });
