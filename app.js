@@ -19,7 +19,7 @@ var net = require("net");
 
 var port = Number(process.env.PORT || 3000);
 net.createServer(function(socket){
-    console.log("client connected!!!!");
+    console.log("client connected!!!! on port" + Number(process.env.PORT));
 
     socket.on("data", function(data){
         console.log("server receive: " + data.toString("utf8"));
