@@ -19,6 +19,7 @@ var net = require("net");
 
 var port = Number(process.env.PORT || 3000);
 net.createServer(function(socket){
+    socket.emit('news', "enniowniwniongiowniownoignwonwo");
     console.log("client connected!!!! on port" + Number(process.env.PORT));
 
     socket.on("data", function(data){
