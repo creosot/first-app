@@ -1,1 +1,1 @@
-web: ./lib/sockets-connect/rs-conn node app.js tcp http
+web: ./lib/sockets-connect/rs-conn node app.js tcp

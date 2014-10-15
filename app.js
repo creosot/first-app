@@ -136,12 +136,12 @@ if ( tcp ) {
                 console.log('timestamp record: ' + timestamp);
                 console.log("length records: " + length_records);
                 console.log("count record: " + count_record);
-                console.log('length 1 record: ' + length_rec);
-                console.log("Широта: " + latitude + "; Долгота: " + longitude + '; Высота: ' + altitude + '; Спутники: ' + sputnik + '; Скорость :' + speed);
-                console.log(buf);
-                console.log('CRC tracker: ' + buf.toString('hex', buf.length-4, buf.length));
-                console.log('My CRC: ' + myCRC16(buf.slice(8, buf.length-4)));
-                console.log('buf length: ' + buf.length);
+//                console.log('length 1 record: ' + length_rec);
+//                console.log("Широта: " + latitude + "; Долгота: " + longitude + '; Высота: ' + altitude + '; Спутники: ' + sputnik + '; Скорость :' + speed);
+//                console.log(buf);
+                console.log('CRC tracker: ' + buf.toString('hex', buf.length-4, buf.length) + ' = ' + myCRC16(buf.slice(8, buf.length-4)) + ' :My CRC');
+//                  console.log('My CRC: ' + myCRC16(buf.slice(8, buf.length-4)));
+//                console.log('buf length: ' + buf.length);
                 console.log('socket read byte: ' + socket.bytesRead);
                 var res = buf.slice(9,10);
                 socket.write('\x00' + '\x00' + '\x00' + res);
