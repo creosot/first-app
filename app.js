@@ -124,7 +124,7 @@ if ( tcp ) {
                 var length_rec = (length_records/count_record);
                 if(length_rec%1 !== 0){
                     console.log('length record is float' + length_rec);
-                    return;
+//                    return;
                 }
                 longitude = buf.readUInt32BE(19)/10000000;
                 latitude = buf.readUInt32BE(23)/10000000;
