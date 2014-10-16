@@ -79,7 +79,7 @@ var moment = require('moment');
 moment.locale('ru');
 var im;
 var count_record;
-var length_records;
+var length_data_packet;
 var longitude;
 var latitude;
 var altitude;
@@ -90,13 +90,13 @@ if ( tcp ) {
     var ruppells_sockets_port = process.env.RUPPELLS_SOCKETS_LOCAL_PORT || 1337;
     net.createServer(function (socket) {
         console.log("Connected Client: " + socket.remoteAddress + ":" + socket.remotePort);
-        im = '';
-        socket.write('helooooo');
+        im = undefined;
+        socket.write('helooooo\r\n');
         socket.on('data', function(data){
             var buf = new Buffer(data);
-            if(im == ''){
+            if(im === undefined){
                 if(buf.length != 17){
-                    socket.end('socket.end');
+                    socket.end('socket.end, bad imei\r\n');
                     return;
                 }
                 im = buf.toString('ascii', 2, 17);
@@ -104,22 +104,30 @@ if ( tcp ) {
                 socket.write('\x01');
             }
             else{
-                console.log(buf);
-                /*if(buf.readUInt32BE(0) != 0 || buf.readUInt8(8) != 8){
-                    console.log('bad AVL packet');
+                //console.log(buf);
+                if(buf.readUInt32BE(0) != 0){
+                    console.log('bad AVL packet, 4 first byte not 0x00');//check 4 first 0x00 byte
+                    socket.end();
+                    return;
+                }
+                if(buf.readUInt8(8) != 8){
+                    console.log('bad AVL packet, number codec not 08');//check codec number
+                    socket.end();
                     return;
                 }
                 count_record = buf.readUInt8(9);
                 if(count_record != buf.readUInt8(buf.length - 5)){
-                    console.log('difference count record');
+                    console.log('difference count record');// check numbers records 1 and numbers records 2
+                    socket.end();
                     return;
                 }
-                length_records = buf.readUInt32BE(4) - 3;
-                if(length_records != (buf.length - 15)){
+                length_data_packet = buf.readUInt32BE(4);
+                if(length_data_packet != (buf.length - 12)){
                     console.log('difference length record');
+                    socket.end();
                     return;
                 }
-                var length_rec = (length_records/count_record);
+                var length_rec = ((length_data_packet - 3)/count_record);
                 if(length_rec%1 !== 0){
                     console.log('length record is float' + length_rec);
 //                    return;
@@ -132,7 +140,7 @@ if ( tcp ) {
                 var unix_time = parseInt(buf.toString('hex', 10, 18), 16);
                 var timestamp = new moment(unix_time).format('MMMM Do YYYY, H:mm:ss');
                 console.log('timestamp record: ' + timestamp);
-                console.log("length records: " + length_records);
+                console.log("length records: " + length_data_packet);
                 console.log("count record: " + count_record);
 //                console.log('length 1 record: ' + length_rec);
 //                console.log("Широта: " + latitude + "; Долгота: " + longitude + '; Высота: ' + altitude + '; Спутники: ' + sputnik + '; Скорость :' + speed);
@@ -147,7 +155,7 @@ if ( tcp ) {
                 for(var i = 0; i < count_record; i++){
 // data[i] = buf.slice(10 + (i*length_rec), 10 + length_rec + (i*length_rec));
                     data[i] = buf.toString('hex', 10 + (i*length_rec), 10 + length_rec + (i*length_rec));
-                    console.log(i + ': ' + data[i]);*/
+                    console.log(i + ': ' + data[i]);
             }
         })
         socket.on('end', function() {
