@@ -23,12 +23,10 @@ if ( http ) {
     var app = express();
 
     app.get('/', function (req, res) {
-        res.send('Hello World!');
+        res.send('Socket: Hello World!');
     });
     var server = app.listen(http_port, function () {
-        var host = server.address().address;
-        var port = server.address().port;
-        console.log('Example app listening at http://%s:%s', host, port)
+        console.log('HTTP server on port ' + http_port)
     });
 
     /*var http_port = process.env.PORT || 5000;
