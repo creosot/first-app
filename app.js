@@ -104,7 +104,8 @@ if ( tcp ) {
                 socket.write('\x01');
             }
             else{
-                if(buf.readUInt32BE(0) != 0 || buf.readUInt8(8) != 8){
+                console.log(buf);
+                /*if(buf.readUInt32BE(0) != 0 || buf.readUInt8(8) != 8){
                     console.log('bad AVL packet');
                     return;
                 }
@@ -146,15 +147,15 @@ if ( tcp ) {
                 for(var i = 0; i < count_record; i++){
 // data[i] = buf.slice(10 + (i*length_rec), 10 + length_rec + (i*length_rec));
                     data[i] = buf.toString('hex', 10 + (i*length_rec), 10 + length_rec + (i*length_rec));
-                    console.log(i + ': ' + data[i]);
-                }
+                    console.log(i + ': ' + data[i]);*/
             }
-        });
+        })
         socket.on('end', function() {
-            console.log('server disconnected');
+            console.log('client disconnected');
         });
-    }).listen(ruppells_sockets_port);
-    console.log("TCP listening on " + ruppells_sockets_port);
+    }).listen(ruppells_sockets_port, function(){
+        console.log("TCP listening on " + ruppells_sockets_port);
+    });
 }
 //function cleanInput(data) {
 //    return data.toString().replace(/(\r\n|\n|\r)/gm,"");
