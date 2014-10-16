@@ -96,7 +96,7 @@ if ( tcp ) {
             var buf = new Buffer(data);
             if(im == ''){
                 if(buf.length != 17){
-                    socket.write('return');
+                    socket.end('socket.end');
                     return;
                 }
                 im = buf.toString('ascii', 2, 17);
