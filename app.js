@@ -1,13 +1,13 @@
-var http = false, tcp = false
+var http = false, tcp = false;
 if ( process.argv.length > 2 ) {
     process.argv.forEach(function (val, index, array) {
         switch(val)
         {
             case "http":
-                http = true
+                http = true;
                 break;
             case "tcp":
-                tcp = true
+                tcp = true;
                 break
         }
     });
@@ -15,26 +15,23 @@ if ( process.argv.length > 2 ) {
     http = true;
     tcp = true;
 }
-// chat functions
-var peeps = {};
-function broadcast(message, sender) {
-    for ( var sendTo in peeps ) {
-        if ( sendTo != sender ) {
-            console.log("checking " + sendTo + " in " + peeps);
-            peeps[sendTo].send(message, sender);
-        }
-    }
-}
-function joined(name) {
-    broadcast("I've joined the chat!", name)
-}
-function left(name) {
-    broadcast(name + " left the chat.", name);
-    delete peeps[name];
-}
+
 // HTTP stuff
 if ( http ) {
     var http_port = process.env.PORT || 5000;
+    var express = require('express');
+    var app = express();
+
+    app.get('/', function (req, res) {
+        res.send('Hello World!');
+    });
+    var server = app.listen(http_port, function () {
+        var host = server.address().address;
+        var port = server.address().port;
+        console.log('Example app listening at http://%s:%s', host, port)
+    });
+
+    /*var http_port = process.env.PORT || 5000;
     var express = require('express'), app = express()
         , http = require('http')
         , server = http.createServer(app)
@@ -74,7 +71,7 @@ if ( http ) {
             conn.write(message);
         });
         conn.on('close', function() {});
-    });
+    });*/
 }
 // TCP socket stuff
 
@@ -159,6 +156,6 @@ if ( tcp ) {
     }).listen(ruppells_sockets_port);
     console.log("TCP listening on " + ruppells_sockets_port);
 }
-function cleanInput(data) {
-    return data.toString().replace(/(\r\n|\n|\r)/gm,"");
-}
+//function cleanInput(data) {
+//    return data.toString().replace(/(\r\n|\n|\r)/gm,"");
+//}
