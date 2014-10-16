@@ -91,10 +91,12 @@ if ( tcp ) {
     net.createServer(function (socket) {
         console.log("Connected Client: " + socket.remoteAddress + ":" + socket.remotePort);
         im = '';
+        socket.write('helooooo');
         socket.on('data', function(data){
             var buf = new Buffer(data);
             if(im == ''){
                 if(buf.length != 17){
+                    socket.write('return');
                     return;
                 }
                 im = buf.toString('ascii', 2, 17);
