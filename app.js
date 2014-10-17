@@ -73,28 +73,87 @@ if ( http ) {
 }
 // TCP socket stuff
 
-var myCRC16 = require('./libs/crc.js');
-var net = require('net');
-var moment = require('moment');
-moment.locale('ru');
+//var myCRC16 = require('./libs/crc.js');
+//var net = require('net');
+//var moment = require('moment');
+//moment.locale('ru');
 var im;
-var count_record;
-var length_data_packet;
-var longitude;
-var latitude;
-var altitude;
-var sputnik;
-var speed;
+//var count_record;
+//var length_data_packet;
+//var longitude;
+//var latitude;
+//var altitude;
+//var sputnik;
+//var speed;
 var data;
 var number = 0;
+var spy = undefined;
+var events = require('events');
+var emiter  = new events.EventEmitter();
 if ( tcp ) {
     var ruppells_sockets_port = process.env.RUPPELLS_SOCKETS_LOCAL_PORT || 1337;
+    emiter.on('spy_close', function(){
+        spy = undefined;
+        console.log('spy = undefined');
+    });
     net.createServer(function (socket) {
         console.log("Connected Client: " + socket.remoteAddress + ":" + socket.remotePort);
         im = undefined;
-        number += 1;
-        socket.write(number + ' helooooo\r\n');
         socket.on('data', function(data){
+            var buf = new Buffer(data);
+            if(spy === undefined){
+                if(buf.toString('ascii',0,3) == 'spy'){
+                    spy = 'spy';
+                    socket.id = 'spy';
+                    socket.write(socket.id + ' socket listen\r\n');
+                    console.log('spy socket connected');
+                    return;
+                }
+                else{
+                    console.log('socket not spy');
+                    socket.end();
+                    return;
+                }
+            }
+            if(socket.id == 'spy'){
+                console.log(data);
+                return;
+            }
+            if(im === undefined){
+                if(buf.length != 17){
+                    socket.end('socket.end, bad imei\r\n');
+                    return;
+                }
+                im = buf.toString('ascii', 2, 17);
+                socket.id = 'gps';
+                console.log('IMEI: ' + im);
+                socket.write('\x01');
+            }
+            if(socket.id == 'gps'){
+                var res = buf.slice(9,10);
+                socket.write('\x00' + '\x00' + '\x00' + res);
+                emiter.emit('buf', buf);
+            }
+        });
+        emiter.on('buf', function(buf){
+            if(socket.id == 'spy'){
+                socket.write(buf);
+                console.log(buf);
+            }
+        });
+        socket.on('close', function(){
+            if(socket.id == 'spy'){
+                console.log(socket.id + ' socket close');
+                emiter.emit('spy_close')
+            }
+        });
+
+        /*emiter.on('console', function(socet_id){
+            console.log('my id=' + socet_id);
+        });*/
+
+
+        /*socket.on('data', function(data){
             var buf = new Buffer(data);
             if(im === undefined){
                 if(buf.length != 17){
@@ -160,7 +219,7 @@ if ( tcp ) {
                     console.log(i + ': ' + data[i]);
                 }
             }
-        });
+        });*/
         socket.on('end', function() {
             console.log('client disconnected');
         });
