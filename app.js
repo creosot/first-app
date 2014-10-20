@@ -92,10 +92,6 @@ var events = require('events');
 var emiter  = new events.EventEmitter();
 if ( tcp ) {
     var ruppells_sockets_port = process.env.RUPPELLS_SOCKETS_LOCAL_PORT || 1337;
-    emiter.on('spy_close', function(){
-        spy = undefined;
-        console.log('spy = undefined');
-    });
     net.createServer(function (socket) {
         console.log("Connected Client: " + socket.remoteAddress + ":" + socket.remotePort);
         im = undefined;
@@ -135,17 +131,22 @@ if ( tcp ) {
                 emiter.emit('buf', buf);
             }
         });
-        emiter.on('buf', function(buf){
+/*        emiter.on('buf', function(buf){
             if(socket.id == 'spy'){
                 socket.write(buf);
                 console.log(buf);
             }
-        });
-        socket.on('close', function(){
-            if(socket.id == 'spy'){
-                console.log(socket.id + ' socket close');
-                emiter.emit('spy_close')
+        });*/
+        socket.on('close', function() {
+            if (socket.id != 'spy') {
+                return;
             }
+            else {
+                console.log(socket.id + ' socket close');
+                spy = undefined;
+                console.log('spy = undefined');
+            }
+            emiter.emit('close_all_socket');
         });
 
         /*emiter.on('console', function(socet_id){
