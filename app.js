@@ -74,7 +74,7 @@ if ( http ) {
 // TCP socket stuff
 
 //var myCRC16 = require('./libs/crc.js');
-//var net = require('net');
+var net = require('net');
 //var moment = require('moment');
 //moment.locale('ru');
 var im;
@@ -87,7 +87,7 @@ var im;
 //var speed;
 var data;
 var number = 0;
-var spy = undefined;
+var spy = 0;
 var events = require('events');
 var emiter  = new events.EventEmitter();
 if ( tcp ) {
@@ -95,11 +95,22 @@ if ( tcp ) {
     net.createServer(function (socket) {
         console.log("Connected Client: " + socket.remoteAddress + ":" + socket.remotePort);
         im = undefined;
+        emiter.on('all_close', function(){
+            console.log('close ' + socket.id + ' socket');
+            socket.end();
+            spy = 0;
+        });
+        socket.on('close', function(){
+            if(socket.id == 'spy'){
+                console.log(socket.id + ' close');
+                emiter.emit('all_close');
+            }
+        });
         socket.on('data', function(data){
             var buf = new Buffer(data);
-            if(spy === undefined){
+            if(spy == 0){
                 if(buf.toString('ascii',0,3) == 'spy'){
-                    spy = 'spy';
+                    spy = 1;
                     socket.id = 'spy';
                     socket.write(socket.id + ' socket listen\r\n');
                     console.log('spy socket connected');
@@ -137,17 +148,6 @@ if ( tcp ) {
                 console.log(buf);
             }
         });*/
-        socket.on('close', function() {
-            if (socket.id != 'spy') {
-                return;
-            }
-            else {
-                console.log(socket.id + ' socket close');
-                spy = undefined;
-                console.log('spy = undefined');
-            }
-            emiter.emit('close_all_socket');
-        });
 
         /*emiter.on('console', function(socet_id){
             console.log('my id=' + socet_id);
