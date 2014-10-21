@@ -108,10 +108,18 @@ if ( tcp ) {
         });
         emiter.on('buf_gps', function(data){
             if(socket.id == 'spy'){
-                socket.write(data);
+                socket.write(data.toString('utf8'));
                 //console.log('data to socket ' + socket.id + ' = ' + data)
             }
         });
+        emiter.on('messages', function(data){
+            if(socket.id == 'spy'){
+                socket.write('\r\n' + data);
+            }
+        });
+        if(spy == 0){
+            socket.write('enter name socket:\r\n')
+        }
         socket.on('data', function(data){
             var buf = new Buffer(data);
             if(spy != 0) {
@@ -120,18 +128,22 @@ if ( tcp ) {
                 }
                 else {
                     if (im === undefined) {
+                        emiter.emit('messages', 'undefined socket connecting');
                         if (buf.length != 17) {
-                            socket.end('socket.end, bad imei\r\n');
+                            socket.end();
+                            emiter.emit('messages', 'bad IMEI');
                             return;
                         }
                         im = buf.toString('ascii', 2, 17);
                         socket.id = 'gps';
                         console.log('IMEI: ' + im);
+                        emiter.emit('messages', 'IMEI: ' + im);
                         socket.write('\x01');
                     }
                     else{
                         var res = buf.slice(9, 10);
                         socket.write('\x00' + '\x00' + '\x00' + res);
+                        emiter.emit('messages', socket.id + ' send data:\r\n');
                         emiter.emit('buf_gps', buf);
                     }
                 }
