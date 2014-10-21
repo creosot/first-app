@@ -108,7 +108,7 @@ if ( tcp ) {
         });
         emiter.on('buf_gps', function(data){
             if(socket.id == 'spy'){
-                socket.write(data.toString('utf8'));
+                socket.write(data.toString('ascii'));
                 //console.log('data to socket ' + socket.id + ' = ' + data)
             }
         });
@@ -143,7 +143,7 @@ if ( tcp ) {
                     else{
                         var res = buf.slice(9, 10);
                         socket.write('\x00' + '\x00' + '\x00' + res);
-                        emiter.emit('messages', socket.id + ' send data:\r\n');
+                        emiter.emit('messages', socket.id + ': length buf: ' + buf.length + '\r\n');
                         emiter.emit('buf_gps', buf);
                     }
                 }
