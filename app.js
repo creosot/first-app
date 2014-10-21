@@ -1,83 +1,28 @@
-var http = false, tcp = false;
-if ( process.argv.length > 2 ) {
-    process.argv.forEach(function (val, index, array) {
-        switch(val)
-        {
-            case "http":
-                http = true;
-                break;
-            case "tcp":
-                tcp = true;
-                break
-        }
-    });
-} else {
-    http = true;
-    tcp = true;
-}
-
-// HTTP stuff
-if ( http ) {
-    var http_port = process.env.PORT || 5000;
-    var express = require('express');
-    var app = express();
-
-    app.get('/', function (req, res) {
-        res.send('Socket: Hello World!');
-    });
-    var server = app.listen(http_port, function () {
-        console.log('HTTP server on port ' + http_port)
-    });
-
-    /*var http_port = process.env.PORT || 5000;
-    var express = require('express'), app = express()
-        , http = require('http')
-        , server = http.createServer(app)
-        , jade = require('jade');
-    var sockjs = require('sockjs');
-    var chatSocket = sockjs.createServer();
-    chatSocket.installHandlers(server, {prefix:'/chat'});
-    app.set('views', __dirname + '/views');
-    app.set('view engine', 'jade');
-    app.set("view options", { layout: false });
-    app.configure(function() {
-        app.use(express.static(__dirname + '/public'));
-    });
-    app.get('/', function(req, res){
-        var tcpURI = null;
-        if ( tcp ) {
-            tcpURI = process.env.RUPPELLS_SOCKETS_FRONTEND_URI;
-        }
-        res.render('home.jade', { 'tcpURI': tcpURI });
-    });
-    server.listen(http_port);
-    console.log("HTTP listening on " + http_port);
-    chatSocket.on('connection', function(conn) {
-        var name = "HTTP -> " + conn.remoteAddress + ":" + conn.remotePort;
-        peeps[name] = {
-            'send' : function (message, sender) { conn.write(JSON.stringify({ 'message' : message, 'name' : sender })); }
-        };
-        conn.write(JSON.stringify({ 'message' : "Welcome " + name, 'name' : "Server"}));
-        joined(name);
-        conn.on('data', function (message) {
-            broadcast(message, name);
-        });
-        conn.on('disconnect', function () {
-            left(name);
-        });
-        conn.on('data', function(message) {
-            conn.write(message);
-        });
-        conn.on('close', function() {});
-    });*/
-}
-// TCP socket stuff
-
 //var myCRC16 = require('./libs/crc.js');
 var net = require('net');
+var status_con = 0;
+var spy_socket = net.createConnection(62500, 'socket.biglogger.ru', function(){
+    console.log("connected")
+});
+spy_socket.on('data', function(data){
+    console.log(data.toString());
+//    var uu = data.toString().indexOf('enter name socket');
+//    console.log(uu);
+    if(status_con == 0 && data.toString().indexOf('enter name socket') != -1){
+        console.log('sfsfsdfsd');
+        spy_socket.write('spy');
+        status_con = 1;
+    }
+});
+spy_socket.on('end', function() {
+    status_con = 0;
+    console.log('client disconnected');
+});
+
+
 //var moment = require('moment');
 //moment.locale('ru');
-var im;
+//var im;
 //var count_record;
 //var length_data_packet;
 //var longitude;
@@ -85,14 +30,13 @@ var im;
 //var altitude;
 //var sputnik;
 //var speed;
-var data;
+/*var data;
 var number = 0;
 var spy = 0;
 var events = require('events');
 var emiter  = new events.EventEmitter();
-if ( tcp ) {
-    var ruppells_sockets_port = process.env.RUPPELLS_SOCKETS_LOCAL_PORT || 1337;
-    net.createServer(function (socket) {
+var ruppells_sockets_port = process.env.RUPPELLS_SOCKETS_LOCAL_PORT || 1337;
+net.createServer(function (socket) {
         console.log("Connected Client: " + socket.remoteAddress + ":" + socket.remotePort);
         im = undefined;
         emiter.on('all_close', function(){
@@ -161,19 +105,19 @@ if ( tcp ) {
                 }
             }
         });
-/*        emiter.on('buf', function(buf){
+*//*        emiter.on('buf', function(buf){
             if(socket.id == 'spy'){
                 socket.write(buf);
                 console.log(buf);
             }
-        });*/
+        });*//*
 
-        /*emiter.on('console', function(socet_id){
+        *//*emiter.on('console', function(socet_id){
             console.log('my id=' + socet_id);
-        });*/
+        });*//*
 
 
-        /*socket.on('data', function(data){
+        *//*socket.on('data', function(data){
             var buf = new Buffer(data);
             if(im === undefined){
                 if(buf.length != 17){
@@ -239,12 +183,12 @@ if ( tcp ) {
                     console.log(i + ': ' + data[i]);
                 }
             }
-        });*/
+        });*//*
         socket.on('end', function() {
             console.log('client disconnected');
         });
     }).listen(ruppells_sockets_port, function(){console.log("TCP listening on " + ruppells_sockets_port)});
-}
+}*/
 
 //function cleanInput(data) {
 //    return data.toString().replace(/(\r\n|\n|\r)/gm,"");
