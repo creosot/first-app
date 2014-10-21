@@ -106,40 +106,47 @@ if ( tcp ) {
                 emiter.emit('all_close');
             }
         });
+        emiter.on('buf_gps', function(data){
+            if(socket.id == 'spy'){
+                socket.write(data);
+                //console.log('data to socket ' + socket.id + ' = ' + data)
+            }
+        });
         socket.on('data', function(data){
             var buf = new Buffer(data);
-            if(spy == 0){
+            if(spy != 0) {
+                if (socket.id == 'spy') {
+                    console.log(data);
+                }
+                else {
+                    if (im === undefined) {
+                        if (buf.length != 17) {
+                            socket.end('socket.end, bad imei\r\n');
+                            return;
+                        }
+                        im = buf.toString('ascii', 2, 17);
+                        socket.id = 'gps';
+                        console.log('IMEI: ' + im);
+                        socket.write('\x01');
+                    }
+                    else{
+                        var res = buf.slice(9, 10);
+                        socket.write('\x00' + '\x00' + '\x00' + res);
+                        emiter.emit('buf_gps', buf);
+                    }
+                }
+            }
+            else{
                 if(buf.toString('ascii',0,3) == 'spy'){
                     spy = 1;
                     socket.id = 'spy';
                     socket.write(socket.id + ' socket listen\r\n');
                     console.log('spy socket connected');
-                    return;
                 }
                 else{
                     console.log('socket not spy');
                     socket.end();
-                    return;
                 }
-            }
-            if(socket.id == 'spy'){
-                console.log(data);
-                return;
-            }
-            if(im === undefined){
-                if(buf.length != 17){
-                    socket.end('socket.end, bad imei\r\n');
-                    return;
-                }
-                im = buf.toString('ascii', 2, 17);
-                socket.id = 'gps';
-                console.log('IMEI: ' + im);
-                socket.write('\x01');
-            }
-            if(socket.id == 'gps'){
-                var res = buf.slice(9,10);
-                socket.write('\x00' + '\x00' + '\x00' + res);
-                emiter.emit('buf', buf);
             }
         });
 /*        emiter.on('buf', function(buf){
