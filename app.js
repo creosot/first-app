@@ -7,7 +7,7 @@ var spy_socket = net.createConnection(62500, 'socket.biglogger.ru', function(){
 spy_socket.on('data', function(data){
     var buf = new Buffer(data);
     console.log('length buf = ' + buf.length);
-    console.log(buf.toString('hex'));
+    console.log(buf.toString());
     if(status_con == 0 && data.toString().indexOf('enter name socket') != -1){
         spy_socket.write('spy');
         status_con = 1;
