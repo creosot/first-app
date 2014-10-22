@@ -85,7 +85,7 @@ var im;
 //var altitude;
 //var sputnik;
 //var speed;
-var data;
+var str_buf;
 var number = 0;
 var spy = 0;
 var events = require('events');
@@ -95,21 +95,24 @@ if ( tcp ) {
     net.createServer(function (socket) {
         console.log("Connected Client: " + socket.remoteAddress + ":" + socket.remotePort);
         im = undefined;
-        emiter.on('all_close', function(){
+        emiter.on('spy_close', function(){
             console.log('close ' + socket.id + ' socket');
-            socket.end();
-            spy = 0;
+            if(socket.id != 'spy'){
+                socket.end();
+            }
         });
         socket.on('close', function(){
             if(socket.id == 'spy'){
-                console.log(socket.id + ' close');
-                emiter.emit('all_close');
+                spy = 0;
+                emiter.emit('spy_close');
             }
+            console.log(socket.id + ' close');
         });
-        emiter.on('buf_gps', function(data){
+        emiter.on('gps', function(){
             if(socket.id == 'spy'){
-                socket.write(data.toString('ascii'));
-                //console.log('data to socket ' + socket.id + ' = ' + data)
+                socket.write('str_buf =>\r\n');
+                socket.write(str_buf);
+                socket.write('\r\ns<= str_buf\r\n');
             }
         });
         emiter.on('messages', function(data){
@@ -120,6 +123,9 @@ if ( tcp ) {
         if(spy == 0){
             socket.write('enter name socket:\r\n')
         }
+        socket.on('error', function(error){
+            console.log(socket.id + ' error => ' + error);
+        });
         socket.on('data', function(data){
             var buf = new Buffer(data);
             if(spy != 0) {
@@ -143,8 +149,9 @@ if ( tcp ) {
                     else{
                         var res = buf.slice(9, 10);
                         socket.write('\x00' + '\x00' + '\x00' + res);
-                        emiter.emit('messages', socket.id + ': length buf: ' + buf.length + '\r\n');
-                        emiter.emit('buf_gps', buf);
+                        str_buf = buf.toString('hex');
+                        console.log(socket.id + ': length buf: ' + buf.length + '\r\n');
+                        emiter.emit('gps');
                     }
                 }
             }
