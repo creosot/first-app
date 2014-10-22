@@ -5,11 +5,10 @@ var spy_socket = net.createConnection(62500, 'socket.biglogger.ru', function(){
     console.log("connected")
 });
 spy_socket.on('data', function(data){
-    console.log(data.toString());
-//    var uu = data.toString().indexOf('enter name socket');
-//    console.log(uu);
+    var buf = new Buffer(data);
+    console.log('length buf = ' + buf.length);
+    console.log(buf.toString('hex'));
     if(status_con == 0 && data.toString().indexOf('enter name socket') != -1){
-        console.log('sfsfsdfsd');
         spy_socket.write('spy');
         status_con = 1;
     }
