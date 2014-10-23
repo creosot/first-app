@@ -85,6 +85,7 @@ var im;
 //var altitude;
 //var sputnik;
 //var speed;
+var buf_gps = new Buffer(1);
 var str_buf;
 var number = 0;
 var spy = 0;
@@ -110,9 +111,11 @@ if ( tcp ) {
         });
         emiter.on('gps', function(){
             if(socket.id == 'spy'){
-                socket.write('str_buf =>\r\n');
-                socket.write(str_buf);
-                socket.write('\r\ns<= str_buf\r\n');
+//                socket.write('str_buf =>\r\n');
+//                socket.write(str_buf);
+//                socket.write('\r\n<= str_buf\r\n');
+                socket.write('buffer');
+                socket.write(buf_gps);
             }
         });
         emiter.on('messages', function(data){
@@ -130,7 +133,7 @@ if ( tcp ) {
             var buf = new Buffer(data);
             if(spy != 0) {
                 if (socket.id == 'spy') {
-                    console.log(data);
+                    socket.write('input data => ' + data);
                 }
                 else {
                     if (im === undefined) {
@@ -149,8 +152,9 @@ if ( tcp ) {
                     else{
                         var res = buf.slice(9, 10);
                         socket.write('\x00' + '\x00' + '\x00' + res);
-                        str_buf = buf.toString('hex');
-                        console.log(socket.id + ': length buf: ' + buf.length + '\r\n');
+                        //str_buf = buf.toString('hex');
+                        buf_gps = buf;
+                        console.log(socket.id + ': length buf_gps: ' + buf_gps.length + '\r\n');
                         emiter.emit('gps');
                     }
                 }
