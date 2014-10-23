@@ -6,8 +6,17 @@ var spy_socket = net.createConnection(62500, 'socket.biglogger.ru', function(){
 });
 spy_socket.on('data', function(data){
     var buf = new Buffer(data);
-    console.log('length buf = ' + buf.length);
-    console.log(buf.toString());
+    var str = buf.toString('ascii', 0, 6);
+    //console.log('str -> ' + str + '\r\n');
+
+    if(str == 'buffer'){
+        var gps_buf = buf.slice(6);
+        console.log('length buf = ' + gps_buf.length);
+        console.log('buf_gps - > ' + gps_buf.toString('hex') + '\r\n');
+    }
+    else{
+        console.log(buf.toString());
+    }
     if(status_con == 0 && data.toString().indexOf('enter name socket') != -1){
         spy_socket.write('spy');
         status_con = 1;
