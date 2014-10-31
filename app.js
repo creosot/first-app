@@ -1,15 +1,29 @@
 //var myCRC16 = require('./libs/crc.js');
 var net = require('net');
 var status_con = 0;
-var spy_socket = net.createConnection(62500, 'socket.biglogger.ru', function(){
-    console.log("connected")
+//var im;
+var socket = net.createConnection(62500, 'socket.biglogger.ru', function(){
+    console.log("connected");
+    socket.write('spy');
 });
-spy_socket.on('data', function(data){
+socket.on('data', function(data){
     var buf = new Buffer(data);
-    var str = buf.toString('ascii', 0, 6);
-    //console.log('str -> ' + str + '\r\n');
+    if (socket.id === undefined) {
+        var name_im = buf.toString('ascii', 2, 17);
+        if (name_im == '356307046475314') {
+            socket.id = name_im;
+            console.log('im = ' + buf.toString('ascii', 2, 17) + '\r\n');
+        }
+        else{
+            console.log(buf.toString('ascii', 2, 17) + '\r\n');
+            socket.end();
+        }
+    }
+    else{
+        console.log(buf.toString('hex') + '\r\n');
+    }
 
-    if(str == 'buffer'){
+    /*if(str == 'buffer'){
         var gps_buf = buf.slice(6);
         console.log('length buf = ' + gps_buf.length);
         console.log('buf_gps - > ' + gps_buf.toString('hex') + '\r\n');
@@ -20,9 +34,9 @@ spy_socket.on('data', function(data){
     if(status_con == 0 && data.toString().indexOf('enter name socket') != -1){
         spy_socket.write('spy');
         status_con = 1;
-    }
+    }*/
 });
-spy_socket.on('end', function() {
+socket.on('end', function() {
     status_con = 0;
     console.log('client disconnected');
 });
