@@ -86,7 +86,6 @@ var im;
 //var sputnik;
 //var speed;
 var buf_gps = new Buffer(1);
-var str_buf;
 var number = 0;
 var spy = 0;
 var events = require('events');
@@ -114,7 +113,7 @@ if ( tcp ) {
 //                socket.write('str_buf =>\r\n');
 //                socket.write(str_buf);
 //                socket.write('\r\n<= str_buf\r\n');
-                socket.write('buffer');
+                //socket.write('buffer');
                 socket.write(buf_gps);
             }
         });
@@ -146,7 +145,9 @@ if ( tcp ) {
                         im = buf.toString('ascii', 2, 17);
                         socket.id = 'gps';
                         console.log('IMEI: ' + im);
-                        emiter.emit('messages', 'IMEI: ' + im);
+                        //emiter.emit('messages', 'IMEI: ' + im);
+                        buf_gps = buf;
+                        emiter.emit('gps');
                         socket.write('\x01');
                     }
                     else{
